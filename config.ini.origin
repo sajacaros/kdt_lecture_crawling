@@ -2,5 +2,5 @@
 path=C:\tools\Webdriver\chromedriver-win64\chromedriver.exe
 
 [auth]
-id=mail_addr
+id=kdt_id
 passwd=kdt_passwd
