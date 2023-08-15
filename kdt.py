@@ -7,9 +7,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 
-def login(web, id, passwd):
-    web.find_element(By.ID, 'user-email').send_keys(id)
-    web.find_element(By.ID, 'user-password').send_keys(passwd)
+def login(web, username, password):
+    web.find_element(By.ID, 'user-email').send_keys(username)
+    web.find_element(By.ID, 'user-password').send_keys(password)
     web.find_element(By.XPATH, '//*[@id="main"]/section/section/form/button').click()
     time.sleep(3)
 
