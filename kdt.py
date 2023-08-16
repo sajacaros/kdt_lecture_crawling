@@ -1,10 +1,13 @@
 import configparser
+import re
 import time
 
 from bs4 import BeautifulSoup
+from openpyxl.styles import Alignment
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from openpyxl import Workbook
 
 
 def login(web, username, password):
@@ -28,12 +31,12 @@ def get_semi_chapter_list(chapter_html):
     return ret
 
 
-def record_chapter_info(chapters_html):
+def retrieve_chapter_info(part_title, chapters_html, lecture_exel):
     for chapter in chapters_html:
-        chapter_title = chapter.select_one('p.classroom-sidebar-clip__chapter__part__title')
-        print(chapter_title.text)
+        chapter_title = chapter.select_one('p.classroom-sidebar-clip__chapter__part__title').text
         semi_chapter_list = get_semi_chapter_list(chapter)
-        print(semi_chapter_list)
+        for (s_title, s_time) in semi_chapter_list:
+            lecture_exel.append([part_title, chapter_title, s_title, s_time])
 
 
 def spread_accordion(web):
@@ -45,35 +48,74 @@ def spread_accordion(web):
         web.execute_script("arguments[0].click();", element)
 
 
-def travel_lecture(web):
-    lecture_len = int(web.find_element(By.CSS_SELECTOR, 'em.sc-66c26572-1').text)
-    print(lecture_len)
-    for idx in range(lecture_len):
-        web.execute_script("arguments[0].click();", web.find_elements(By.CSS_SELECTOR, '.sc-eb2000db-3')[idx])
-        time.sleep(3)
-
-        # part 아코디언 펼치기
-        spread_accordion(web)
-        # chapter 아코디언 펼치기
-        spread_accordion(web)
-
-        # 사이트 정보 획득
-        retrieve_lecture_info(BeautifulSoup(web.page_source, 'html.parser'))
-
-        # 뒤로가기
-        web.back()
-        time.sleep(3)
+def get_lecture_title(web, idx):
+    title = web.find_elements(By.CSS_SELECTOR, 'h3.sc-eb2000db-5')[idx].text
+    return title.split(':')[-1].strip()
 
 
-def retrieve_lecture_info(lecture_html):
+def short_title(title):
+    bracket_pattern = r'\([^)]*\)'  # 괄호 제거
+    str_pattern = r'[^A-Za-z0-9가-힣]'  # 한글/숫자/영어 추출
+    t = re.sub(pattern=bracket_pattern, repl='', string=title)
+    t = re.sub(pattern=str_pattern, repl='', string=t)
+    return t.strip()[0:20]
+
+
+def retrieve_lecture_info(lecture_html, lecture_ws):
+    lecture_ws.append(['대주제(Part)', '중주제(Chapter)', '소주제(Clip)', '강의 시간'])
+
     # part로 나누기
     parts = lecture_html.select('div.classroom-sidebar-clip__chapter')
     for part in parts:
         part_title = get_part_title(part)
-        print(part_title)
         # part내 chapter로 나누기
         chapters = part.select('div.classroom-sidebar-clip__chapter__part')
-        record_chapter_info(chapters)
+        retrieve_chapter_info(part_title, chapters, lecture_ws)
+    autofit_column(lecture_ws)
+
+
+def autofit_column(sheet, margin=5):
+    for i, column_cells in enumerate(sheet.columns):
+        length = max(len(str(cell.value)) for cell in column_cells)
+        sheet.column_dimensions[column_cells[0].column_letter].width = length + margin
+
+
+def get_lecture_len(web):
+    return int(web.find_element(By.CSS_SELECTOR, 'em.sc-66c26572-1').text)
+
+
+def remove_default_sheet(lecture_wb):
+    lecture_wb.remove(lecture_wb['Sheet'])
+
+
+def travel_lecture(web):
+    lecture_len = get_lecture_len(web)
+    print(f"총 강좌수 : {lecture_len} 개")
+    lecture_wb = Workbook()
+    for idx in range(lecture_len):
+        lecture_title = get_lecture_title(web, idx)
+        print(f"강좌 {idx} - {lecture_title}")
+        lecture_ws = lecture_wb.create_sheet(short_title(lecture_title))
+
+        # 강좌 클릭
+        web.execute_script("arguments[0].click();", web.find_elements(By.CSS_SELECTOR, '.sc-eb2000db-3')[idx])
+        time.sleep(2)
+
+        # part 아코디언 펼치기
+        spread_accordion(web)
+        time.sleep(1)
+        # chapter 아코디언 펼치기
+        spread_accordion(web)
+        time.sleep(1)
+
+        # 강좌 정보 획득
+        retrieve_lecture_info(BeautifulSoup(web.page_source, 'html.parser'), lecture_ws)
+
+        # 뒤로가기
+        web.back()
+        time.sleep(2)
+    remove_default_sheet(lecture_wb)
+    lecture_wb.save('schedule.xlsx')
 
 
 def main():
