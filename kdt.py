@@ -36,7 +36,7 @@ def record_chapter_info(chapters_html):
         print(semi_chapter_list)
 
 
-def extend_accordion(web):
+def spread_accordion(web):
     accordion_close_elements = web.find_elements(
         By.CSS_SELECTOR,
         'div.common-accordion-menu:not(.common-accordion-menu--open) > .common-accordion-menu__header'
@@ -53,9 +53,9 @@ def travel_lecture(web):
         time.sleep(3)
 
         # part 아코디언 펼치기
-        extend_accordion(web)
+        spread_accordion(web)
         # chapter 아코디언 펼치기
-        extend_accordion(web)
+        spread_accordion(web)
 
         # 사이트 정보 획득
         retrieve_lecture_info(BeautifulSoup(web.page_source, 'html.parser'))
