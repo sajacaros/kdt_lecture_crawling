@@ -88,7 +88,7 @@ def remove_default_sheet(lecture_wb):
     lecture_wb.remove(lecture_wb['Sheet'])
 
 
-def travel_lecture(web):
+def travel_lecture(web, filename='schedule_t.xlsx'):
     lecture_len = get_lecture_len(web)
     print(f"총 강좌수 : {lecture_len} 개")
     lecture_wb = Workbook()
@@ -115,10 +115,10 @@ def travel_lecture(web):
         web.back()
         time.sleep(2)
     remove_default_sheet(lecture_wb)
-    lecture_wb.save('schedule.xlsx')
+    lecture_wb.save(filename)
 
 
-def main():
+def start_crawling(filename='schedule_t.xlsx'):
     config = configparser.ConfigParser()
     config.read('config.ini')
     path = config['chrome-driver']['path']
@@ -134,8 +134,8 @@ def main():
 
     login(driver, user_id, user_pw)
 
-    travel_lecture(driver)
+    travel_lecture(driver, filename)
 
 
 if __name__ == '__main__':
-    main()
+    start_crawling()
