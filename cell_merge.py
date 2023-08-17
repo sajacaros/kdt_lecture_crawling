@@ -30,7 +30,7 @@ def cell_merge(key_column, max_row, prev_value, start_row, ws):
                                     start_row):
         if prev_value != row_cells[0].value or row == max_row:
             if prev_value is not None:
-                if row == max_row:
+                if row == max_row and prev_value == row_cells[0].value:
                     end_row = row
                 else:
                     end_row = row - 1
