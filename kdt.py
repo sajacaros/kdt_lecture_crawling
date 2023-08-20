@@ -3,11 +3,10 @@ import re
 import time
 
 from bs4 import BeautifulSoup
-from openpyxl.styles import Alignment
+from openpyxl import Workbook
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from openpyxl import Workbook
 
 
 def login(web, username, password):
@@ -71,13 +70,6 @@ def retrieve_lecture_info(lecture_html, lecture_ws):
         # part내 chapter로 나누기
         chapters = part.select('div.classroom-sidebar-clip__chapter__part')
         retrieve_chapter_info(part_title, chapters, lecture_ws)
-    autofit_column(lecture_ws)
-
-
-def autofit_column(sheet, margin=5):
-    for i, column_cells in enumerate(sheet.columns):
-        length = max(len(str(cell.value)) for cell in column_cells)
-        sheet.column_dimensions[column_cells[0].column_letter].width = length + margin
 
 
 def get_lecture_len(web):
