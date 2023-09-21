@@ -67,6 +67,7 @@ def retrieve_lecture_info(lecture_html, lecture_ws):
     parts = lecture_html.select('div.classroom-sidebar-clip__chapter')
     for part in parts:
         part_title = get_part_title(part)
+        print(part_title)
         # part내 chapter로 나누기
         chapters = part.select('div.classroom-sidebar-clip__chapter__part')
         retrieve_chapter_info(part_title, chapters, lecture_ws)
