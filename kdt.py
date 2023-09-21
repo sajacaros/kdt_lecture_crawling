@@ -31,8 +31,9 @@ def get_semi_chapter_list(chapter_html):
 
 
 def retrieve_chapter_info(part_title, chapters_html, lecture_exel):
-    for chapter in chapters_html:
-        chapter_title = chapter.select_one('p.classroom-sidebar-clip__chapter__part__title').text
+    for idx, chapter in enumerate(chapters_html):
+        chapter_block = chapter.select_one('p.classroom-sidebar-clip__chapter__part__title')
+        chapter_title = chapter_block.text if chapter_block else part_title
         semi_chapter_list = get_semi_chapter_list(chapter)
         for (s_title, s_time) in semi_chapter_list:
             lecture_exel.append([part_title, chapter_title, s_title, s_time])
@@ -70,7 +71,10 @@ def retrieve_lecture_info(lecture_html, lecture_ws):
         print(part_title)
         # part내 chapter로 나누기
         chapters = part.select('div.classroom-sidebar-clip__chapter__part')
-        retrieve_chapter_info(part_title, chapters, lecture_ws)
+        if chapters:
+            retrieve_chapter_info(part_title, chapters, lecture_ws)
+        else:
+            retrieve_chapter_info(part_title, part, lecture_ws)
 
 
 def get_lecture_len(web):
