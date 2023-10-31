@@ -122,7 +122,7 @@ def start_crawling(filename='schedule_t.xlsx'):
     user_id = config['auth']['id']
     user_pw = config['auth']['passwd']
     driver = webdriver.Chrome(
-        service=Service(executable_path=r"{}".format(path))
+        # service=Service(executable_path=r"{}".format(path))
     )
     url = r'https://kdt.fastcampus.co.kr'
 
