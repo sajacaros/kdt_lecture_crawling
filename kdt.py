@@ -49,7 +49,7 @@ def spread_accordion(web):
 
 
 def get_lecture_title(web, idx):
-    title = web.find_elements(By.CSS_SELECTOR, 'h3.sc-eb2000db-5')[idx].text
+    title = web.find_elements(By.CSS_SELECTOR, 'h3.sc-d01c8748-5')[idx].text
     return title.split(':')[-1].strip()
 
 
@@ -95,7 +95,7 @@ def travel_lecture(web, filename='schedule_t.xlsx'):
         lecture_ws = lecture_wb.create_sheet(short_title(lecture_title))
 
         # 강좌 클릭
-        web.execute_script("arguments[0].click();", web.find_elements(By.CSS_SELECTOR, '.sc-eb2000db-3')[idx])
+        web.execute_script("arguments[0].click();", web.find_elements(By.CSS_SELECTOR, '.sc-d01c8748-3')[idx])
         time.sleep(2)
 
         # part 아코디언 펼치기
@@ -118,7 +118,6 @@ def travel_lecture(web, filename='schedule_t.xlsx'):
 def start_crawling(filename='schedule_t.xlsx'):
     config = configparser.ConfigParser()
     config.read('config.ini')
-    path = config['chrome-driver']['path']
     user_id = config['auth']['id']
     user_pw = config['auth']['passwd']
     driver = webdriver.Chrome(

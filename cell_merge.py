@@ -1,6 +1,7 @@
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.worksheet import Worksheet
+from typing import List
 
 
 def merge_same_value(from_source='schedule_t.xlsx', to_source='schedule.xlsx'):
@@ -45,7 +46,7 @@ def merge_cell(ws, key_column):
             prev_value = row_cells[0].value
 
 
-def sum_lecture_time(l_times: list[str]):
+def sum_lecture_time(l_times: List[str]):
     mm = 0
     ss = 0
     for l_time in l_times:
